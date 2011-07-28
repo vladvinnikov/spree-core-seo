@@ -1,13 +1,16 @@
 <h3><%= t('metadata') %></h3>
-<p>
-  <%= f.label :title_tag, t("title_tag")%><br />
-  <%= f.text_field :title_tag, :class => 'fullwidth' %>
-</p>
-<p>
-  <%= f.label :meta_keywords, t("meta_keywords")%><br />
-  <%= f.text_field :meta_keywords, :class => 'fullwidth' %>
-</p>
-<p>
-  <%= f.label :meta_description, t("meta_description")%><br />
-  <%= f.text_field :meta_description, :class => 'fullwidth' %>
-</p>
+
+  <%= f.field_container :title_tag do %>
+    <%= f.label :title_tag, t(:title_tag) %><br />
+    <%= f.input :title_tag %>
+  <% end %>
+
+  <%= f.field_container :meta_keywords do %>
+    <%= f.label :meta_keywords, t(:meta_keywords) %><br />
+    <%= f.input :meta_keywords %>
+  <% end %>
+
+  <%= f.field_container :meta_description do %>
+    <%= f.label :meta_description, t(:meta_description) %><br />
+    <%= f.input :meta_description %>
+  <% end %>

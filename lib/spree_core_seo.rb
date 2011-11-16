@@ -1,7 +1,7 @@
 require 'spree_core'
 require 'core_seo_hooks'
 
-module SpreeCoreSeo
+module CoreSeo
   class Engine < Rails::Engine
 
     config.autoload_paths += %W(#{config.root}/lib)
@@ -12,7 +12,7 @@ module SpreeCoreSeo
       	# Override meta tags for homepage
       	def meta_data_tags
         	# if product index, then it's the homepage, so lets add the defaults
-        	if defined?(request) and request.fullpath == "/"
+        	if defined?(action_name) and action_name == "index"
           	"".tap do |tags|
             	if Spree::Config[:homepage_meta_keywords] and Spree::Config[:homepage_meta_keywords].present?                         
               	tags << tag('meta', :name => 'keywords', :content => Spree::Config[:homepage_meta_keywords]) + "\n"
@@ -22,8 +22,7 @@ module SpreeCoreSeo
             	end                            
           	end                              
         	else
-            object = instance_variable_get('@'+controller_name.singularize)
-            return unless object
+          	return unless self.respond_to?(:object) && object
           	"".tap do |tags|
             	if object.respond_to?(:meta_keywords) and object.meta_keywords.present?
               	tags << tag('meta', :name => 'keywords', :content => object.meta_keywords) + "\n"
@@ -34,28 +33,38 @@ module SpreeCoreSeo
           	end
         	end
       	end
+      	
+      	def title
+      	  if defined?(action_name) and action_name == "index"
+      	    return Spree::Config[:homepage_title] if Spree::Config[:homepage_title].present?
+    	    end
+    	    @title
+    	  end
+      	
     	end
       
 			ProductsController.class_eval do
-        #before_filter :find_seo_title, :only => :show
+    	  # This will override the entire title tag
+  	    # Use accurate_title to keep Spree::Config[:site_name] in front of all titles
 	      def title
-      	  if defined?(request) and request.fullpath == "/"
-    	      @title = Spree::Config[:homepage_title] if Spree::Config[:homepage_title].present?
+      	  if defined?(action_name) and action_name == "index"
+    	      return Spree::Config[:homepage_title] if Spree::Config[:homepage_title].present?
   	      end
 	        if defined?(@product.title_tag)
-        	  @title = @product.title_tag if @product.title_tag.present?
+        	  return @product.title_tag if !@product.title_tag.blank?
       	  end
+    	    @product ? @product.name : nil
   	    end
 	    end
 
     	TaxonsController.class_eval do
-        #before_filter :find_seo_title, :only => :show
+  	    # This will override the entire title tag
+	      # Use accurate_title to keep Spree::Config[:site_name] in front of all titles
       	def title
-    	    if defined?(@taxon.title_tag) && @taxon.title_tag.present?
-  	        @title = @taxon.title_tag
-          else
-            @title = @taxon.name
-          end
+    	    if defined?(@taxon.title_tag)
+  	        return @taxon.title_tag if @taxon.title_tag.present?
+	        end
+        	@taxon ? @taxon.name : nil
       	end
     	end
 

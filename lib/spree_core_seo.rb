@@ -34,15 +34,17 @@ module CoreSeo
         	end
       	end
       	
-      	def title
+    	end
+      
+      HomeController.class_eval do
+        def title
       	  if defined?(action_name) and action_name == "index"
       	    return Spree::Config[:homepage_title] if Spree::Config[:homepage_title].present?
     	    end
     	    @title
     	  end
-      	
-    	end
-      
+      end
+			
 			ProductsController.class_eval do
     	  # This will override the entire title tag
   	    # Use accurate_title to keep Spree::Config[:site_name] in front of all titles
